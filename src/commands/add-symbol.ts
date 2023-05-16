@@ -1,15 +1,15 @@
-import _ from 'lodash'
-import { Argv, ArgumentsCamelCase } from 'yargs'
-import fs from 'fs'
-import path from 'path'
-import inquirer from 'inquirer'
-import { generateSymbolCode } from '../codegen/getSymbolCode'
-import { Manifest, getManifest, getManifestPath, updateManifest } from '../utils/manifest'
-import { isSnakeCase } from '../utils/case'
+import { 
+    stdpath, 
+    lodash as _,
+    inquirer
+} from '../../deps.ts'
+import { generateSymbolCode } from '../codegen/getSymbolCode.ts'
+import { Manifest, getManifest, getManifestPath, updateManifest } from '../utils/manifest.ts'
+import { isSnakeCase } from '../utils/case.ts'
+// import inquirer from 'inquirer'
 
-export const addSymbolArgs = (yargs: Argv) => yargs
 
-export const addSymbolCommand = (argv: ArgumentsCamelCase) => {
+export const addSymbolCommand = async () => {
     inquirer
     .prompt([
         {
@@ -35,7 +35,7 @@ export const addSymbolCommand = (argv: ArgumentsCamelCase) => {
 
         }
     ])
-    .then((answers) => {
+    .then((answers: any) => {
         const manifestPath = getManifestPath()
         const manifest = getManifest()
     
@@ -45,13 +45,13 @@ export const addSymbolCommand = (argv: ArgumentsCamelCase) => {
             throw new Error(`Symbol ${snakeCaseName} already exists at ${manifest.symbols[snakeCaseName]}`)
         }
     
-        const finalFilePath =  path.join(path.dirname(manifestPath), `symbols/${snakeCaseName}/${snakeCaseName}.ts`)
-        fs.mkdirSync(
-            path.dirname(finalFilePath), { recursive: true }
+        const finalFilePath =  stdpath.join(stdpath.dirname(manifestPath), `symbols/${snakeCaseName}/${snakeCaseName}.ts`)
+        Deno.mkdirSync(
+            stdpath.dirname(finalFilePath), { recursive: true }
         )
     
         const code = generateSymbolCode({ name: snakeCaseName, category, description })
-        fs.writeFileSync(finalFilePath, code)
+        Deno.writeTextFileSync(finalFilePath, code)
         const newManifest: Manifest = {
             ...manifest,
             symbols: {

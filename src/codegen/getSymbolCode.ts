@@ -1,7 +1,4 @@
-import dedent from 'dedent-js'
-import _ from 'lodash'
-import { getManifest } from '../utils/manifest'
-import { js as beautify } from 'js-beautify'
+import { beautify, dedent, lodash as _ } from '../../deps.ts'
 
 type GenerateSymbolCodeArgs = {
     name: string

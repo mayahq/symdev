@@ -1,11 +1,18 @@
-import yargs, {Argv} from "yargs";
+#!/usr/bin/env node
+import { parse } from "../deps.ts";
+import { addSymbolCommand } from './commands/add-symbol.ts'
+import { initArgs, initCommand } from "./commands/init.ts";
+// import { removeSymbolArgs, removeSymbolCommand } from "./commands/remove-symbol.ts";
 
-import { addSymbolArgs, addSymbolCommand } from './commands/add-symbol'
-import { initArgs, initCommand } from "./commands/init";
-import { removeSymbolArgs, removeSymbolCommand } from "./commands/remove-symbol";
+const args = parse(Deno.args)
+const command = args._[0]
 
-yargs
-    .command('add-symbol', "Create a new symbol", addSymbolArgs, addSymbolCommand)
-    .command('remove-symbol', "Remove a symbol", removeSymbolArgs, removeSymbolCommand)
-    .command('init', "Initialise a new Maya Symbols project", initArgs, initCommand)
-    .argv;
+async function handleCommand() {
+    switch (command) {
+        case 'add-symbol': return addSymbolCommand()
+        case 'init': return initCommand()
+    }
+}
+
+
+await handleCommand()

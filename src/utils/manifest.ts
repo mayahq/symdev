@@ -1,5 +1,4 @@
-import fs from 'fs'
-import path from 'path'
+import { stdpath } from '../../deps.ts'
 
 export type Manifest = {
     moduleName: string
@@ -8,14 +7,24 @@ export type Manifest = {
 }
 
 export function getManifestPath() {
-    let manifestPath = process.cwd()
+    let manifestPath = Deno.cwd()
     
     while (manifestPath !== '/') {
-        const exists = fs.readdirSync(manifestPath).some((file) => file === 'manifest.json')
-        if (exists) {
-            return path.resolve(manifestPath)
+        let exists = false
+        const dirs = Deno.readDirSync(manifestPath)
+
+        for (const dir of dirs) {
+            if (dir.isFile && dir.name === 'manifest.json') {
+                exists = true
+                break
+            }
         }
-        manifestPath = path.join(manifestPath, '..')
+
+        if (exists) {
+            return stdpath.join(stdpath.resolve(manifestPath), 'manifest.json')
+        }
+
+        manifestPath = stdpath.join(manifestPath, '..')
     }
 
     throw new Error(`You are not in a Maya Symbol project.`)
@@ -23,10 +32,10 @@ export function getManifestPath() {
 
 export function getManifest(): Manifest {
     const manifestPath = getManifestPath()
-    return JSON.parse(fs.readFileSync(manifestPath).toString())
+    return JSON.parse(Deno.readTextFileSync(manifestPath))
 }
 
 export function updateManifest(manifest: Manifest) {
     const manifestPath = getManifestPath()
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4))
+    Deno.writeTextFileSync(manifestPath, JSON.stringify(manifest, null, 4))
 }

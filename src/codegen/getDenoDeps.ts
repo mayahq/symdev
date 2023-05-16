@@ -1,7 +1,4 @@
-import dedent from 'dedent-js'
-import _ from 'lodash'
-import { getManifest } from '../utils/manifest'
-import { js as beautify } from 'js-beautify'
+import { dedent, lodash as _, beautify } from '../../deps.ts'
 
 export function generateDepsCode() {
     const code = dedent(`

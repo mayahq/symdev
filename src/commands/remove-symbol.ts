@@ -1,9 +1,7 @@
-import fs from 'fs'
-import path from 'path'
-import yargs, { ArgumentsCamelCase, Argv } from "yargs";
-import { getManifest, updateManifest } from "../utils/manifest";
+import { stdpath, yargs } from '../../deps.ts';
+import { getManifest, updateManifest } from "../utils/manifest.ts";
 
-export const removeSymbolArgs = (arg: Argv) => {
+export const removeSymbolArgs = (_: unknown) => {
     return yargs
     .positional('name', {
         description: 'Name of the symbol (in snake_case) to remove.'
@@ -17,7 +15,7 @@ export const removeSymbolArgs = (arg: Argv) => {
 }
 
 export const removeSymbolCommand = (
-    args: ArgumentsCamelCase<{ name: string, hard: boolean }>
+    args: any
 ) => {
     const { name, hard } = args
     const manifest = getManifest()
@@ -31,6 +29,6 @@ export const removeSymbolCommand = (
     updateManifest(manifest)
 
     if (hard) {
-        fs.rmdirSync(path.dirname(symbolPath), { recursive: true })
+        Deno.removeSync(stdpath.dirname(symbolPath), { recursive: true })
     }
 }

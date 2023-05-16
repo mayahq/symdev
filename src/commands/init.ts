@@ -1,13 +1,12 @@
-import _ from 'lodash'
-import { Argv, ArgumentsCamelCase } from 'yargs'
-import fs from 'fs'
-import inquirer from 'inquirer'
-import chalk from 'chalk'
-import ora from 'ora'
-import { execSync } from 'child_process'
-
-import { Manifest } from '../utils/manifest'
-import { generateDepsCode } from '../codegen/getDenoDeps'
+import { Manifest } from '../utils/manifest.ts'
+import { generateDepsCode } from '../codegen/getDenoDeps.ts'
+import { 
+    inquirer,
+    ora,
+    chalk,
+    yargs,
+    lodash as _
+} from '../../deps.ts'
 
 type SetupArgs = {
     moduleName: string;
@@ -20,7 +19,11 @@ function isKebabCase(str: string) {
 
 function denoIsInstalled(): boolean {
     try {
-        execSync('deno --version', { encoding: 'utf8' })
+        const cmd = new Deno.Command("deno", { args: ['--version'] })
+        const output = cmd.outputSync()
+        if (output.code !== 0) {
+            return false
+        }
         return true
     } catch (_) {
         return false
@@ -72,29 +75,36 @@ async function setupProject(setupArgs: SetupArgs) {
       }
       
 
-    fs.writeFileSync('./manifest.json', JSON.stringify(manifest, null, 4))
-    fs.writeFileSync('./deps.ts', generateDepsCode())
-    fs.writeFileSync('./deno.jsonc', JSON.stringify(denoSettings, null, 4))
+    Deno.writeTextFileSync('./manifest.json', JSON.stringify(manifest, null, 4))
+    Deno.writeTextFileSync('./deps.ts', generateDepsCode())
+    Deno.writeTextFileSync('./deno.jsonc', JSON.stringify(denoSettings, null, 4))
 
-    fs.mkdirSync('./symbols')
+    Deno.mkdirSync('./symbols', { recursive: true })
 
     const spinner = ora('Setting up the project.').start()
-    execSync('deno task get_deps', { encoding: 'utf8' })
+
+    const cmd = new Deno.Command('deno', { args: ['task', 'get_deps'] })
+    const output = cmd.outputSync()
+    if (output.code !== 0) {
+        spinner.fail('Failed.')
+        throw new Error('There was an unexpected error initialising the project.')
+    }
+
     spinner.succeed('Done!')
 
     console.log(initSuccessMessage)
 }
 
-export const initArgs = (yargs: Argv) => yargs
+export const initArgs = (yargs: unknown) => yargs
 
-export const initCommand = (argv: ArgumentsCamelCase) => {
+export const initCommand = async () => {
     inquirer
     .prompt([
         {
             name: 'moduleName',
             type: 'input',
             message: 'Module name:',
-            validate: function(input) {
+            validate: function(input: string) {
                 if (isKebabCase(input)) {
                     return true
                 } else {
@@ -107,7 +117,7 @@ export const initCommand = (argv: ArgumentsCamelCase) => {
             type: 'input',
             message: 'Repository URL:',
             default: '',
-            validate: function(input) {
+            validate: function(input: string) {
                 if (input === '') return true
                 try {
                     new URL(input)
@@ -116,7 +126,7 @@ export const initCommand = (argv: ArgumentsCamelCase) => {
             }
         }
     ])
-    .then((answers) => {
+    .then((answers: any) => {
         setupProject(answers)
     })
 }
