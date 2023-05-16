@@ -1,4 +1,4 @@
-export { parse } from "https://deno.land/std/flags/mod.ts"
+export { parse } from "https://deno.land/std@0.186.0/flags/mod.ts"
 export { default as inquirer } from 'npm:inquirer'
 export { default as chalk } from 'npm:chalk'
 
