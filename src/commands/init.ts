@@ -4,7 +4,6 @@ import {
     inquirer,
     ora,
     chalk,
-    yargs,
     lodash as _
 } from '../../deps.ts'
 

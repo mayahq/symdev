@@ -1,21 +1,13 @@
-import { stdpath, yargs } from '../../deps.ts';
+import { stdpath } from '../../deps.ts';
 import { getManifest, updateManifest } from "../utils/manifest.ts";
 
-export const removeSymbolArgs = (_: unknown) => {
-    return yargs
-    .positional('name', {
-        description: 'Name of the symbol (in snake_case) to remove.'
-    })
-    .option('hard', {
-        alias: 'h',
-        type: 'boolean',
-        description: 'Delete the code file for the symbol as well.',
-        default: false
-    })
+export type RemoveSymbolCommandArgs = {
+    name: string,
+    hard: boolean
 }
 
 export const removeSymbolCommand = (
-    args: any
+    args: RemoveSymbolCommandArgs
 ) => {
     const { name, hard } = args
     const manifest = getManifest()
